@@ -56,6 +56,7 @@ const CanvasScreen: React.FC<Props> = ({ promptIndex, canvasRef, onNext, onFinis
   const isInitializedRef = useRef(false);
   const [placedChips, setPlacedChips] = useState<Set<string>>(new Set());
   const [customWord, setCustomWord] = useState('');
+  const colorInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize canvas once
   useEffect(() => {
@@ -71,16 +72,13 @@ const CanvasScreen: React.FC<Props> = ({ promptIndex, canvasRef, onNext, onFinis
     canvasRef.current = canvas;
     isInitializedRef.current = true;
 
-    // Undo stack
     canvas.on('object:added', () => {
       const json = JSON.stringify(canvas.toJSON());
       if (undoStackRef.current.length >= 20) undoStackRef.current.shift();
       undoStackRef.current.push(json);
     });
 
-    return () => {
-      // Don't dispose - canvas persists
-    };
+    return () => {};
   }, [canvasRef]);
 
   // Update tool settings
@@ -92,7 +90,7 @@ const CanvasScreen: React.FC<Props> = ({ promptIndex, canvasRef, onNext, onFinis
       canvas.isDrawingMode = true;
       canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
       canvas.freeDrawingBrush.color = isEraser ? '#FDFAF6' : color;
-      canvas.freeDrawingBrush.width = brushSize;
+      canvas.freeDrawingBrush.width = isEraser ? Math.max(brushSize, 20) : brushSize;
     } else {
       canvas.isDrawingMode = false;
     }
@@ -128,7 +126,7 @@ const CanvasScreen: React.FC<Props> = ({ promptIndex, canvasRef, onNext, onFinis
     if (!canvas || tool !== 'text') return;
 
     const handler = (opt: fabric.IEvent<MouseEvent>) => {
-      if ((opt.target as any)) return; // Don't add text when clicking existing objects
+      if ((opt.target as any)) return;
       const pointer = canvas.getPointer(opt.e);
       const text = new fabric.IText('Type here', {
         left: pointer.x,
@@ -155,7 +153,7 @@ const CanvasScreen: React.FC<Props> = ({ promptIndex, canvasRef, onNext, onFinis
   const handleUndo = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas || undoStackRef.current.length < 2) return;
-    undoStackRef.current.pop(); // Remove current
+    undoStackRef.current.pop();
     const prev = undoStackRef.current[undoStackRef.current.length - 1];
     if (prev) {
       canvas.loadFromJSON(JSON.parse(prev), () => canvas.renderAll());
@@ -183,7 +181,7 @@ const CanvasScreen: React.FC<Props> = ({ promptIndex, canvasRef, onNext, onFinis
 
   return (
     <div className="flex flex-col" style={{ minHeight: 600 }}>
-      {/* Toolbar */}
+      {/* Toolbar Row 1: Tools + Eraser + Undo */}
       <div
         className="flex items-center justify-between px-3 py-2"
         style={{
@@ -192,7 +190,7 @@ const CanvasScreen: React.FC<Props> = ({ promptIndex, canvasRef, onNext, onFinis
           borderRadius: '14px 14px 0 0',
         }}
       >
-        {/* Tools */}
+        {/* Left: Tools */}
         <div className="flex gap-1">
           {(['brush', 'shape', 'text'] as Tool[]).map(t => (
             <button
@@ -219,72 +217,86 @@ const CanvasScreen: React.FC<Props> = ({ promptIndex, canvasRef, onNext, onFinis
           ))}
         </div>
 
-        {/* Colors */}
-        <div className="flex items-center gap-1">
-          <label className="w-[22px] h-[22px] rounded-full cursor-pointer border-2 border-border overflow-hidden">
-            <input
-              type="color"
-              value={color}
-              onChange={e => setColor(e.target.value)}
-              className="w-full h-full cursor-pointer opacity-0 absolute"
-            />
-            <div className="w-full h-full rounded-full" style={{ backgroundColor: color }} />
-          </label>
-          <div className="flex gap-0.5 flex-wrap max-w-[180px]">
-            {COLORS.map(c => (
-              <button
-                key={c}
-                onClick={() => { setColor(c); setIsEraser(false); }}
-                className="w-4 h-4 rounded-full transition-all"
-                style={{
-                  backgroundColor: c,
-                  border: color === c && !isEraser ? '1.5px solid #5DCAA5' : '1.5px solid transparent',
-                  boxShadow: c === '#FFFFFF' ? 'inset 0 0 0 0.5px #D3D1C7' : undefined,
-                }}
-              />
-            ))}
-          </div>
+        {/* Center: Brush size */}
+        <div className="flex items-center gap-1.5">
+          <input
+            type="range"
+            min={2}
+            max={30}
+            value={brushSize}
+            onChange={e => setBrushSize(Number(e.target.value))}
+            className="w-14 h-1 accent-[#5DCAA5]"
+          />
+          <div
+            className="rounded-full flex-shrink-0"
+            style={{
+              width: Math.min(brushSize, 16),
+              height: Math.min(brushSize, 16),
+              backgroundColor: isEraser ? '#FDFAF6' : color,
+              border: '1px solid #D3D1C7',
+            }}
+          />
         </div>
 
-        {/* Size / Eraser / Undo */}
+        {/* Right: Eraser + Undo */}
         <div className="flex items-center gap-1">
-          <div className="flex items-center gap-1">
-            <input
-              type="range"
-              min={2}
-              max={30}
-              value={brushSize}
-              onChange={e => setBrushSize(Number(e.target.value))}
-              className="w-12 h-1 accent-primary"
-            />
-            <div
-              className="rounded-full"
-              style={{
-                width: Math.min(brushSize, 16),
-                height: Math.min(brushSize, 16),
-                backgroundColor: isEraser ? '#FDFAF6' : color,
-                border: '1px solid #D3D1C7',
-              }}
-            />
-          </div>
           <button
             onClick={() => { setIsEraser(!isEraser); setTool('brush'); }}
-            className="w-7 h-7 flex items-center justify-center rounded-lg text-xs"
+            className="w-8 h-8 flex items-center justify-center rounded-lg"
             style={{
               backgroundColor: isEraser ? '#EAF3DE' : 'transparent',
               border: isEraser ? '1px solid #9FE1CB' : '1px solid transparent',
             }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2C2C2A" strokeWidth="2" strokeLinecap="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2C2C2A" strokeWidth="2" strokeLinecap="round">
               <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/>
               <path d="M22 21H7"/>
               <path d="m5 11 9 9"/>
             </svg>
           </button>
-          <button onClick={handleUndo} className="w-7 h-7 flex items-center justify-center rounded-lg text-sm" style={{ color: '#888780' }}>
+          <button onClick={handleUndo} className="w-8 h-8 flex items-center justify-center rounded-lg text-sm" style={{ color: '#888780' }}>
             ↩
           </button>
         </div>
+      </div>
+
+      {/* Toolbar Row 2: Colors */}
+      <div
+        className="flex items-center justify-center gap-1.5 px-3 py-1.5"
+        style={{
+          backgroundColor: '#F8F5F0',
+          borderBottom: '0.5px solid #E9E7E0',
+        }}
+      >
+        {/* Color picker */}
+        <button
+          onClick={() => colorInputRef.current?.click()}
+          className="w-5 h-5 rounded-full flex-shrink-0 cursor-pointer relative overflow-hidden"
+          style={{ border: '2px solid #D3D1C7' }}
+        >
+          <div className="w-full h-full rounded-full" style={{ backgroundColor: color }} />
+          <input
+            ref={colorInputRef}
+            type="color"
+            value={color}
+            onChange={e => { setColor(e.target.value); setIsEraser(false); }}
+            className="sr-only"
+            tabIndex={-1}
+          />
+        </button>
+
+        {COLORS.map(c => (
+          <button
+            key={c}
+            onClick={() => { setColor(c); setIsEraser(false); }}
+            className="w-5 h-5 rounded-full flex-shrink-0 transition-all"
+            style={{
+              backgroundColor: c,
+              border: color === c && !isEraser ? '2px solid #5DCAA5' : '2px solid transparent',
+              boxShadow: c === '#FFFFFF' ? 'inset 0 0 0 0.5px #D3D1C7' : undefined,
+            }}
+          />
+        ))}
       </div>
 
       {/* Canvas */}
