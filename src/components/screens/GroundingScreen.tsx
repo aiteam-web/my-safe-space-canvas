@@ -106,8 +106,7 @@ const GroundingScreen: React.FC<Props> = ({ collage, onClose }) => {
           style={{
             width: 100, height: 100,
             border: '2px solid #5DCAA5', opacity: 0.2,
-            top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
+            inset: 0, margin: 'auto',
           }}
         />
         <div
@@ -115,8 +114,7 @@ const GroundingScreen: React.FC<Props> = ({ collage, onClose }) => {
           style={{
             width: 74, height: 74,
             border: '2px solid #5DCAA5', opacity: 0.45,
-            top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
+            inset: 0, margin: 'auto',
             animationDelay: '0.2s',
           }}
         />
@@ -125,14 +123,15 @@ const GroundingScreen: React.FC<Props> = ({ collage, onClose }) => {
           style={{
             width: 48, height: 48,
             border: '2px solid #5DCAA5', opacity: 0.9,
-            top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
+            inset: 0, margin: 'auto',
             animationDelay: '0.4s',
           }}
         >
           <span className="font-lora italic text-[10px] whitespace-nowrap" style={{ color: '#1D9E75' }}>
             {isActive ? PHASES[phaseIndex] : '...'}
           </span>
+        </div>
+      </div>
         </div>
       </div>
 
