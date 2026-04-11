@@ -132,8 +132,6 @@ const GroundingScreen: React.FC<Props> = ({ collage, onClose }) => {
           </span>
         </div>
       </div>
-        </div>
-      </div>
 
       <p className="font-inter text-xs mb-6" style={{ color: '#888780' }}>
         4 · hold · 4 · let go · 6
