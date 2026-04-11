@@ -65,6 +65,15 @@ const GroundingScreen: React.FC<Props> = ({ collage, onClose }) => {
       className="flex flex-col items-center px-6 py-6 relative"
       style={{ minHeight: 600, backgroundColor: '#F4F8F0' }}
     >
+      {/* Back button */}
+      <button
+        onClick={onClose}
+        className="absolute top-4 left-4 text-lg font-inter"
+        style={{ color: '#888780' }}
+      >
+        ←
+      </button>
+
       {/* Close button */}
       <button
         onClick={onClose}
@@ -91,20 +100,37 @@ const GroundingScreen: React.FC<Props> = ({ collage, onClose }) => {
       />
 
       {/* Breathing circles */}
-      <div className="relative flex items-center justify-center mb-4" style={{ width: 100, height: 100 }}>
+      <div className="relative flex items-center justify-center mb-4" style={{ width: 120, height: 120 }}>
         <div
           className="absolute rounded-full breathe-cycle"
-          style={{ width: 80, height: 80, border: '2px solid #5DCAA5', opacity: 0.2 }}
+          style={{
+            width: 100, height: 100,
+            border: '2px solid #5DCAA5', opacity: 0.2,
+            top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
         />
         <div
           className="absolute rounded-full breathe-cycle"
-          style={{ width: 58, height: 58, border: '2px solid #5DCAA5', opacity: 0.45, animationDelay: '0.2s' }}
+          style={{
+            width: 74, height: 74,
+            border: '2px solid #5DCAA5', opacity: 0.45,
+            top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            animationDelay: '0.2s',
+          }}
         />
         <div
           className="absolute rounded-full breathe-cycle flex items-center justify-center"
-          style={{ width: 38, height: 38, border: '2px solid #5DCAA5', opacity: 0.9, animationDelay: '0.4s' }}
+          style={{
+            width: 48, height: 48,
+            border: '2px solid #5DCAA5', opacity: 0.9,
+            top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            animationDelay: '0.4s',
+          }}
         >
-          <span className="font-lora italic text-[10px]" style={{ color: '#1D9E75' }}>
+          <span className="font-lora italic text-[10px] whitespace-nowrap" style={{ color: '#1D9E75' }}>
             {isActive ? PHASES[phaseIndex] : '...'}
           </span>
         </div>
