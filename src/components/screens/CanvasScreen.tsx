@@ -35,7 +35,7 @@ const COLORS = [
   '#F9A234', '#9FE1CB', '#2C2C2A', '#FFFFFF', '#D4A574',
 ];
 
-const WORD_CHIPS = ['Still', 'Mine', 'No rush', 'Warm', 'Enough', 'Quiet', 'Held', 'Safe'];
+const WORD_CHIPS = ['Peace', 'Home', 'Heaven', 'Calm', 'Warm', 'Enough', 'Gentle', 'Safe'];
 
 type Tool = 'brush' | 'shape' | 'text';
 
