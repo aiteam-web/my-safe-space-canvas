@@ -32,7 +32,7 @@ const PROMPTS = [
 
 const COLORS = [
   '#CBE4F7', '#FAC775', '#97C459', '#7A5C38', '#ED93B1',
-  '#F9A234', '#9FE1CB', '#2C2C2A', '#FFFFFF', '#D4A574',
+  '#F9A234', '#9FE1CB', '#2C2C2A', '#FFFFFF', '#D4A574', '#E74C3C',
 ];
 
 const WORD_CHIPS = ['Peace', 'Home', 'Heaven', 'Calm', 'Warm', 'Enough', 'Gentle', 'Safe'];
